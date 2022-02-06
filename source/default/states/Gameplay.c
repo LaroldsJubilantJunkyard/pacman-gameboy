@@ -5,7 +5,7 @@
 #include "states/Gameplay/hud.h"
 #include "states/Gameplay/ghosts.h"
 #include "states/Gameplay/pacman.h"
-#include "states/Gameplay/dots.h"
+#include "states/Gameplay/pellets.h"
 #include "util.h"
 #include "graphics/GhostsEaten.h"
 #include "graphics/GhostsScared.h"
@@ -27,39 +27,40 @@ uint8_t counter;
 
 
 void UpdateCameraPosition(uint8_t dividor){
+
+    // Get pacman's position
     uint8_t playerX=pacman.column*8+Directions[pacman.direction].x*(pacman.move>>4);;
     uint8_t playerY=pacman.row*8+Directions[pacman.direction].y*(pacman.move>>4);;
 
     uint8_t sidebarWidth=56;
     uint8_t heightRemainder=Map_HEIGHT-DEVICE_SCREEN_HEIGHT*8;
 
-    uint16_t targetCameraX=cameraX;
-    uint16_t targetCameraY=cameraY;
+    uint16_t targetCameraX=SCX_REG;
+    uint16_t targetCameraY=SCY_REG;
 
-    
+    // Make the map follow pacman when in the middle third
     if(playerX<Map_WIDTH/3)targetCameraX=0;
     else if(playerX<(Map_WIDTH/3)*2)targetCameraX=((playerX-Map_WIDTH/3)*sidebarWidth)/(Map_WIDTH/3);
     else targetCameraX=sidebarWidth;
-
     
+    // Make the map follow pacman when in the middle third
     if(playerY<Map_HEIGHT/3)targetCameraY=0;
     else if(playerY<(Map_HEIGHT/3)*2)targetCameraY=((playerY-Map_HEIGHT/3)*heightRemainder)/(Map_HEIGHT/3);
     else targetCameraY=heightRemainder;
 
-    int16_t cameraXDiff=targetCameraX-cameraX;
-    int16_t cameraYDiff=targetCameraY-cameraY;
-    cameraX+=cameraXDiff/dividor;
-    cameraY+=cameraYDiff/dividor;
+    // The amount of change to get to the target position
+    int16_t cameraXDiff=targetCameraX-SCX_REG;
+    int16_t cameraYDiff=targetCameraY-SCY_REG;
 
-    move_bkg(cameraX,cameraY);
+    // Divide it some, so it's not instant
+    SCX_REG+=cameraXDiff/dividor;
+    SCY_REG+=cameraYDiff/dividor;
 }
 
 
 
 void SetupGameplay(){
 
-    cameraX=0;
-    cameraY=0;
     score=0;
 
     // Move the window to the right side
@@ -110,6 +111,7 @@ void SetupGameplay(){
     SetupGhosts();
     
     // We want all the ghosts, the camera, and pacman in position before the upcoming "ready" delay
+    // Otherwise, they'll jump to the correct location after it's
     UpdateCameraPosition(1);
     DrawGhost(0);
     DrawGhost(1);
@@ -132,11 +134,9 @@ void SetupGameplay(){
     set_bkg_tile_xy(11,11,get_bkg_tile_xy(12,9));
 
     // cover up our ready text
-
     VBK_REG=1; fill_bkg_rect(8,15,6,1,1);
     VBK_REG=0; fill_bkg_rect(8,15,6,1,blank);
 
-    counter=0;
     twoFrameAnimator=0;
     threeFrameAnimator=0;
 
@@ -224,18 +224,22 @@ uint8_t UpdateGameplay(){
     // NOTE: this function contains a while loop and some wait_vbl_done's
     // Thus why we added _halting on it's name for clarity
     if(pacman.state==0){
-        PacmanDeathAnimation_Halting();
-        return RELOAD_GAMESTATE;
+
+        // If we are not yet resetting
+        // Show the pacman death animation
+        if(!ghostsResetting)PacmanDeathAnimation_Halting();
+        ghostsResetting=1;
+        
+        // Reload the game state when the ghosts are ready
+        return ghostsReady?RELOAD_GAMESTATE:GAMEPLAY;
     }
 
     // If there are no more balls remaining
     // We want to blink the screen blue and white in celebration
     // NOTE: this function contains a while loop and some wait_vbl_done's
     // Thus why we added _halting on it's name for clarity
-    else if(ballsRemaining==0){
-
+    else if(pelletsRemaining==0){
         BlinkLevelBlueAndWhite_Halting();
-
         return RELOAD_GAMESTATE;
     }
     

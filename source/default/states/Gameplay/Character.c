@@ -129,8 +129,8 @@ uint8_t MoveForward(Character *character, uint8_t speed){
 void DrawCharacter(Character *character, metasprite_t const *metasprites, uint8_t baseSprite, uint8_t baseTile){
 
     // Get our screenX and screenY
-    uint16_t screenX=(character->column*8+Directions[character->direction].x*(character->move>>4))-cameraX;
-    uint16_t screenY=(character->row*8+Directions[character->direction].y*(character->move>>4))-cameraY;
+    uint16_t screenX=(character->column*8+Directions[character->direction].x*(character->move>>4))-SCX_REG;
+    uint16_t screenY=(character->row*8+Directions[character->direction].y*(character->move>>4))-SCY_REG;
 
 
     // Sprites are draw at the specified x,y position, MINUS 8 and 16

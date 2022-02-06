@@ -3,6 +3,7 @@
 #include <gb/gb.h>
 #include "util.h"
 
+extern uint8_t ghostsResetting,ghostsReady;
 
 
 void GetGhostNextDirection(uint8_t ghostIndex);

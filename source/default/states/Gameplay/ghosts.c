@@ -13,11 +13,8 @@
 #include "graphics/TargetTiles.h"
 #include "cOMMON.h"
 
-#define INKY 0 // blue
-#define BLINKY 1 // red
-#define PINKY 2
-#define CLYDE 3 // orange
-
+uint8_t ghostsReady=0;
+uint8_t ghostsResetting=0;
 uint16_t scatterChaseCounter;
 uint8_t scatterOrChaseMode=CHASE;
 uint8_t frigtenedCounter,frigtenedOffset;
@@ -33,33 +30,38 @@ const uint8_t DirectionalPriorities[]={ 3, 0, 1, 2 };
 
 void GetGhostNextDirection(uint8_t ghostIndex){
 
-    // Override directional logic if ghosts are in the ghost pit
-    // To Make sure they can get out
-    if(ghosts[ghostIndex].column>=GHOST_PIT_LEFT&&ghosts[ghostIndex].column<=GHOST_PIT_RIGHT&&ghosts[ghostIndex].row>=GHOST_PIT_TOP&&ghosts[ghostIndex].row<=GHOST_PIT_BOTTOM){
+    // If the ghosts aren't resetting we want specific logic to get out of the ghost pit
+    // If they are resetting let them use the normal logic
+    if(!ghostsResetting){
 
-        // If we are on the left side
-        if(ghosts[ghostIndex].column==GHOST_PIT_LEFT){
+        // Override directional logic if ghosts are in the ghost pit
+        // To Make sure they can get out
+        if(ghosts[ghostIndex].column>=GHOST_PIT_LEFT&&ghosts[ghostIndex].column<=GHOST_PIT_RIGHT&&ghosts[ghostIndex].row>=GHOST_PIT_TOP&&ghosts[ghostIndex].row<=GHOST_PIT_BOTTOM){
 
-            // Move down and then to the right
-            if(ghosts[ghostIndex].row==GHOST_PIT_TOP)ghosts[ghostIndex].direction=DOWN;
-            else ghosts[ghostIndex].direction=RIGHT;
+            // If we are on the left side
+            if(ghosts[ghostIndex].column==GHOST_PIT_LEFT){
 
-        // IF we are in the middle
-        }else if(ghosts[ghostIndex].column>GHOST_PIT_LEFT&&ghosts[ghostIndex].column<GHOST_PIT_RIGHT){
+                // Move down and then to the right
+                if(ghosts[ghostIndex].row==GHOST_PIT_TOP)ghosts[ghostIndex].direction=DOWN;
+                else ghosts[ghostIndex].direction=RIGHT;
 
-            // Move up or right
-            if(ghosts[ghostIndex].row==GHOST_PIT_TOP)ghosts[ghostIndex].direction=UP;
-            else ghosts[ghostIndex].direction=RIGHT;
+            // IF we are in the middle
+            }else if(ghosts[ghostIndex].column>GHOST_PIT_LEFT&&ghosts[ghostIndex].column<GHOST_PIT_RIGHT){
 
-        // If weare on the right
-        }else if(ghosts[ghostIndex].column==GHOST_PIT_RIGHT){
+                // Move up or right
+                if(ghosts[ghostIndex].row==GHOST_PIT_TOP)ghosts[ghostIndex].direction=UP;
+                else ghosts[ghostIndex].direction=RIGHT;
 
-            // Move left or up
-            if(ghosts[ghostIndex].row==GHOST_PIT_TOP)ghosts[ghostIndex].direction=LEFT;
-            else ghosts[ghostIndex].direction=UP;
+            // If weare on the right
+            }else if(ghosts[ghostIndex].column==GHOST_PIT_RIGHT){
+
+                // Move left or up
+                if(ghosts[ghostIndex].row==GHOST_PIT_TOP)ghosts[ghostIndex].direction=LEFT;
+                else ghosts[ghostIndex].direction=UP;
+            }
+        
+            return;
         }
-    
-        return;
     }
 
     // Get which directions we can move in
@@ -68,6 +70,7 @@ void GetGhostNextDirection(uint8_t ghostIndex){
 
     if(maxPossibleSides==0)return;
 
+    // Get the distance to our target tile FROM the first (possibly best) direction 
     uint16_t bestDistance=getSquareDistance(
         ghosts[ghostIndex].column+Directions[sidesCanCheck[0]].x,
         ghosts[ghostIndex].row+Directions[sidesCanCheck[0]].y,
@@ -77,8 +80,11 @@ void GetGhostNextDirection(uint8_t ghostIndex){
 
     uint16_t bestDirection=sidesCanCheck[0];
 
+    // Check each other possibble side
+    // NOTE: This loop starts at 1, because we default at 0
     for(uint8_t i=1;i<maxPossibleSides;i++){
 
+        // Get the distance to our target tile FROM the tile in our next (possibly best) direction
         uint8_t nextPossibleNestDirection = sidesCanCheck[i];
         uint16_t nextPossibleBestDistance = getSquareDistance(
             ghosts[ghostIndex].column+Directions[nextPossibleNestDirection].x,
@@ -87,18 +93,24 @@ void GetGhostNextDirection(uint8_t ghostIndex){
             ghosts[ghostIndex].targetRow
         );
 
+        // If this distance is lesser OR equal w/ higher priority
+        // Then we have a new best direction to move in
         if((nextPossibleBestDistance<bestDistance)||(nextPossibleBestDistance==bestDistance&&DirectionalPriorities[nextPossibleNestDirection]>DirectionalPriorities[bestDirection])){
             bestDistance=nextPossibleBestDistance;
             bestDirection=nextPossibleNestDirection;
         }
     }
 
-    ghosts[ghostIndex].direction=bestDirection;
-
+    TryChangeDirection(&ghosts[ghostIndex],bestDirection);
 
 }
 
 void GetGhostTargetTile(uint8_t ghostIndex){
+    if(pacman.state==0){
+        ghosts[ghostIndex].targetColumn=GhostsStartPositions[ghostIndex].x;
+        ghosts[ghostIndex].targetRow=GhostsStartPositions[ghostIndex].y;
+        return;
+    }
 
     int16_t intermediateColumn, intermediateRow;
     int16_t blinkyXDiff, blinkyYDiff;
@@ -218,16 +230,23 @@ void SetupGhosts(){
         ghosts[i].direction=DOWN;
         ghosts[i].column=GhostsStartPositions[i].x;
         ghosts[i].row=GhostsStartPositions[i].y;
+        // Decide our next target tile and direction
         GetGhostTargetTile(i);
         GetGhostNextDirection(i);
+
+        // Draw the ghot initially
         DrawGhost(i);
     }
     frigtenedCounter=0;
     frigtenedOffset=0;
+    ghostsResetting=0;
 }
 
 void UpdateSingleGhost(uint8_t i){
 
+    if(ghosts[i].column!=GhostsStartPositions[i].x||ghosts[i].row!=GhostsStartPositions[i].y){
+        ghostsReady=0;
+    }
 
     if(ghosts[i].state!=EATEN){
 
@@ -241,17 +260,21 @@ void UpdateSingleGhost(uint8_t i){
         int16_t xd = pacmanX-ghostX;
         int16_t yd = pacmanY-ghostY;
 
+        // Get the absolute value
         if(xd<0)xd=-xd;
         if(yd<0)yd=-yd;
 
         if(xd<=8&&yd<=8){
             
+            // If we are frightened
             if(ghosts[i].state==FRIGHTENED){
 
+                // WE are eaten
                 ghosts[i].state=EATEN;
                 delay(400);
             }else{
 
+                // Pacman is dead
                 pacman.state=0;
 
             }
@@ -268,8 +291,26 @@ void UpdateSingleGhost(uint8_t i){
     // Move faster when eaten
     if(ghosts[i].state==EATEN)speed=40;
 
+    if(ghostsResetting){
+
+        // If we are at our target location
+        if(ghosts[i].column==GhostsStartPositions[i].x&&ghosts[i].row==GhostsStartPositions[i].y){
+            speed=0;
+            ghosts[i].move=0;
+
+        // if we are not there, move faster
+        }else{
+            speed=40;
+        }
+    }
+    
+
+    // Move forward
+    // This function returns true when we reach new tile
     if(MoveForward(&ghosts[i],speed)){
 
+        // Pick a new target tile
+        // Pick a new direction
         GetGhostTargetTile(i);
         GetGhostNextDirection(i);
     }
@@ -295,8 +336,8 @@ void DrawGhost(uint8_t i){
 
     if(enableDebug){
 
-        uint8_t screenX = ghosts[i].targetColumn*8-cameraX;
-        uint8_t screenY = ghosts[i].targetRow*8-cameraY;
+        uint8_t screenX = ghosts[i].targetColumn*8-SCX_REG;
+        uint8_t screenY = ghosts[i].targetRow*8-SCY_REG;
 
         move_metasprite(TargetTiles_metasprites[i],TARGET_TILES_SPRITES_START,36+i,12+screenX,24+screenY);
         
@@ -356,6 +397,8 @@ void UpdateAllGhosts(){
     }
 
     UpdateScatterOrChaseMode();
+
+    ghostsReady=1;
 
     // For each of the 4 ghosts
     for(uint8_t i=0;i<4;i++){

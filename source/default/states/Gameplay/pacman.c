@@ -47,9 +47,13 @@ void UpdatePacman(){
         TryChangeDirection(&pacman,dir);
     }
 
-    // Move pacman forward
-    MoveForward(&pacman,10);
-    DrawPacman();
+    if(pacman.state!=0){
+
+        // Move pacman forward
+        MoveForward(&pacman,10);
+        DrawPacman();
+    }
+
 }
 
 void DrawPacman(){
@@ -66,8 +70,6 @@ void PacmanDeathAnimation_Halting(){
     NR13_REG=0xA6;
     NR14_REG=0x86;
 
-    metasprite_t const *pacmanEatenMetasprites;
-
     // Use the tile data from the propre direction
     switch(pacman.direction){
         case DOWN: set_sprite_data(0,PacmanEatenDown_TILE_COUNT,PacmanEatenDown_tiles); break;
@@ -77,8 +79,8 @@ void PacmanDeathAnimation_Halting(){
     }
 
 
-    uint16_t screenX=(pacman.column*8+Directions[pacman.direction].x*(pacman.move>>4))-cameraX;
-    uint16_t screenY=(pacman.row*8+Directions[pacman.direction].y*(pacman.move>>4))-cameraY;
+    uint16_t screenX=(pacman.column*8+Directions[pacman.direction].x*(pacman.move>>4))-SCX_REG;
+    uint16_t screenY=(pacman.row*8+Directions[pacman.direction].y*(pacman.move>>4))-SCY_REG;
 
     // Since some othe metasprites only use one sprites
     // Hide these by default, so they don't accidentally show when unused by the metasprite
@@ -103,5 +105,8 @@ void PacmanDeathAnimation_Halting(){
     move_sprite(0,0,0);
     move_sprite(1,0,0);
 
-    delay(1000);
+    pacman.column=10;
+    pacman.row=20;
+    pacman.move=0;
+    pacman.direction=RIGHT;
 }

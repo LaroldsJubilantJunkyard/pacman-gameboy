@@ -8,8 +8,8 @@
 // For organizatio nand structer
 typedef struct Vector2D{ int16_t x,y; } Vector2D;
 
-extern uint8_t twoFrameAnimator,threeFrameAnimator,cameraX,cameraY,blank,level,joypadCurrent,joypadPrevious,enableDebug;
-extern uint16_t score,highScore,ballsRemaining;
+extern uint8_t twoFrameAnimator,threeFrameAnimator,blank,level,joypadCurrent,joypadPrevious,enableDebug;
+extern uint16_t score,highScore,pelletsRemaining;
 extern Character ghosts[4];
 extern Character pacman;
 extern const Vector2D Directions[];
@@ -30,6 +30,11 @@ extern const uint8_t reverseDirections[4];
 #define GAMEFIRSTLOAD 1
 #define START_SCREEN 2
 #define RELOAD_GAMESTATE 255
+
+#define INKY 0 // blue
+#define BLINKY 1 // red
+#define PINKY 2
+#define CLYDE 3 // orange
 
 
 void GetSidesCanCheck(Character *character,uint8_t allowReverse);

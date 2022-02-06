@@ -1,6 +1,6 @@
 #include <gb/gb.h>
 #include "util.h"
-#include "states/Gameplay/dots.h"
+#include "states/Gameplay/pellets.h"
 #include "states/Gameplay/ghosts.h"
 #include "states/Gameplay/pacman.h"
 #include "states/Gameplay/hud.h"
@@ -24,7 +24,7 @@ uint8_t BigPelletsActive[4]={1,1,1,1};
 
 void SetupDots(){
 
-    ballsRemaining=0;
+    pelletsRemaining=0;
 
     BigPelletsActive[0]=1;
     BigPelletsActive[1]=1;
@@ -54,7 +54,7 @@ void SetupDots(){
             if(current==blank){
                 VBK_REG=1; set_bkg_tile_xy(i,j,0);
                 VBK_REG=0; set_bkg_tile_xy(i,j,PELLETS_TILES_START);
-                ballsRemaining++;
+                pelletsRemaining++;
             }
         }
     }
@@ -77,10 +77,13 @@ void HandleDotConsumption(){
             for(uint8_t i=0;i<4;i++){
 
                 // BOO!!!!!!
-                ghosts[i].state=FRIGHTENED;
+                // But only if we are not already eaten
+                if(ghosts[i].state==SCATTERCHASE){
+                    ghosts[i].state=FRIGHTENED;
 
-                // Try to change directions
-                TryChangeDirection(&ghosts[i],reverseDirections[ghosts[i].direction]);
+                    // Try to change directions
+                    TryChangeDirection(&ghosts[i],reverseDirections[ghosts[i].direction]);
+                }
             }
             
             for(uint8_t i=0;i<4;i++){
@@ -94,7 +97,7 @@ void HandleDotConsumption(){
         score++;
         if(score>highScore)highScore=score;
         UpdateScore();
-        ballsRemaining--;
+        pelletsRemaining--;
         set_bkg_tile_xy(pacman.column,pacman.row,blank);
 
     }
