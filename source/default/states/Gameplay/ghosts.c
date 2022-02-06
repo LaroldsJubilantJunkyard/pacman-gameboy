@@ -1,9 +1,9 @@
 #include <gb/gb.h>
 #include <gb/metasprites.h>
 #include "util.h"
-#include "ghosts.h"
-#include "Pacman.h"
-#include "Character.h"
+#include "states/Gameplay/ghosts.h"
+#include "states/Gameplay/Pacman.h"
+#include "states/Gameplay/Character.h"
 #include "graphics/Pacman.h"
 #include "graphics/Ghosts.h"
 #include "graphics/GhostsScared.h"

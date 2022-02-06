@@ -1,5 +1,5 @@
 #include <gb/gb.h>
-#include "Character.h"
+#include "states/Gameplay/Character.h"
 #include "util.h"
 
 uint8_t twoFrameAnimator=0,joypadCurrent,joypadPrevious;

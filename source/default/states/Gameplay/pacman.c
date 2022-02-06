@@ -1,8 +1,8 @@
 #include <gb/gb.h>
 #include <gb/metasprites.h>
 #include "util.h"
-#include "Character.h"
-#include "pacman.h"
+#include "states/Gameplay/Character.h"
+#include "states/Gameplay/pacman.h"
 #include "common.h"
 #include "graphics/Pacman.h"
 #include "graphics/Map.h"
@@ -70,22 +70,10 @@ void PacmanDeathAnimation_Halting(){
 
     // Use the tile data from the propre direction
     switch(pacman.direction){
-        case DOWN:
-            set_sprite_data(0,PacmanEatenDown_TILE_COUNT,PacmanEatenDown_tiles);
-            pacmanEatenMetasprites=PacmanEatenDown_metasprites[0];
-            break;
-        case UP:
-            set_sprite_data(0,PacmanEatenUp_TILE_COUNT,PacmanEatenUp_tiles);
-            pacmanEatenMetasprites=PacmanEatenUp_metasprites[0];
-            break;
-        case LEFT:
-            set_sprite_data(0,PacmanEatenLeft_TILE_COUNT,PacmanEatenLeft_tiles);
-            pacmanEatenMetasprites=PacmanEatenLeft_metasprites[0];
-        break;
-        case RIGHT:
-            set_sprite_data(0,PacmanEatenRight_TILE_COUNT,PacmanEatenRight_tiles);
-            pacmanEatenMetasprites=PacmanEatenRight_metasprites[0];
-            break;
+        case DOWN: set_sprite_data(0,PacmanEatenDown_TILE_COUNT,PacmanEatenDown_tiles); break;
+        case UP: set_sprite_data(0,PacmanEatenUp_TILE_COUNT,PacmanEatenUp_tiles); break;
+        case LEFT: set_sprite_data(0,PacmanEatenLeft_TILE_COUNT,PacmanEatenLeft_tiles); break;
+        case RIGHT: set_sprite_data(0,PacmanEatenRight_TILE_COUNT,PacmanEatenRight_tiles); break;
     }
 
 
@@ -97,10 +85,15 @@ void PacmanDeathAnimation_Halting(){
     move_sprite(0,0,0);
     move_sprite(1,0,0);
 
-    for(uint8_t i=0;i<8;i++){
-        
-        move_metasprite(pacmanEatenMetasprites+i,0,0,screenX+12,screenY+20);
-        
+    for(uint8_t i=0;i<8;i++){        
+
+        // Use the tile data from the propre direction
+        switch(pacman.direction){
+            case DOWN: move_metasprite(PacmanEatenDown_metasprites[i],0,0,screenX+12,screenY+20); break;
+            case UP: move_metasprite(PacmanEatenUp_metasprites[i],0,0,screenX+12,screenY+20); break;
+            case LEFT: move_metasprite(PacmanEatenLeft_metasprites[i],0,0,screenX+12,screenY+20); break;
+            case RIGHT: move_metasprite(PacmanEatenRight_metasprites[i],0,0,screenX+12,screenY+20); break;
+        }        
 
         wait_vbl_done();
         wait_vbl_done();
@@ -111,6 +104,4 @@ void PacmanDeathAnimation_Halting(){
     move_sprite(1,0,0);
 
     delay(1000);
-
-        
 }

@@ -1,7 +1,7 @@
 #include <gb/gb.h>
 #include <gb/metasprites.h>
 #include "common.h"
-#include "Character.h"
+#include "states/Gameplay/Character.h"
 #include "util.h"
 #include "graphics/Map.h"
 #include "graphics/Pellets.h"

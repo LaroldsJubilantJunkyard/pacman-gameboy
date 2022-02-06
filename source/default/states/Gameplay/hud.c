@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "common.h"
 #include "graphics/Map.h"
-#include "hud.h"
+#include "states/Gameplay/hud.h"
 #include "graphics/Map.h"
 #include "graphics/Numbers.h"
 #include "graphics/Pellets.h"

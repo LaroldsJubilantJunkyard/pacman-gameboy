@@ -2,10 +2,10 @@
 #include <gb/gb.h>
 #include <gb/metasprites.h>
 #include "common.h"
-#include "hud.h"
-#include "ghosts.h"
-#include "pacman.h"
-#include "dots.h"
+#include "states/Gameplay/hud.h"
+#include "states/Gameplay/ghosts.h"
+#include "states/Gameplay/pacman.h"
+#include "states/Gameplay/dots.h"
 #include "util.h"
 #include "graphics/GhostsEaten.h"
 #include "graphics/GhostsScared.h"
@@ -189,7 +189,7 @@ void UpdateGlobalFrameCounters(){
     }
 }
 
-void BlinkLevelBlueAndWhite_Halting((){
+void BlinkLevelBlueAndWhite_Halting(){
     for(uint8_t i=0;i<10;i++){
 
         // The palette item for blue (in the first, default, palette) is white in the third color palette
@@ -234,7 +234,7 @@ uint8_t UpdateGameplay(){
     // Thus why we added _halting on it's name for clarity
     else if(ballsRemaining==0){
 
-        BlinkLevelBlueAndWhite_Halting(();
+        BlinkLevelBlueAndWhite_Halting();
 
         return RELOAD_GAMESTATE;
     }

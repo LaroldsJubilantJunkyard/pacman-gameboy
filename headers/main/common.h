@@ -3,7 +3,7 @@
 
 #include <gb/gb.h>
 #include "util.h"
-#include "Character.h"
+#include "states/Gameplay/Character.h"
 
 // For organizatio nand structer
 typedef struct Vector2D{ int16_t x,y; } Vector2D;
