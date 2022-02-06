@@ -1,3 +1,9 @@
+dist/
+bin/
+.vscode/
+headers/gen/
+source/gen/
+
 # Prerequisites
 *.d
 
