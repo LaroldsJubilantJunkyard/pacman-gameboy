@@ -26,6 +26,19 @@ uint8_t IsAligned(Character *character){
     return (character->move>>4)==0||(character->move>>4)>=8;
 }
 
+uint8_t CheckBackgroundTileIsWalkable(int8_t nextColumn, int8_t nextRow){
+
+    if(nextColumn==10&&nextRow==11)return TRUE;
+
+    // To allow looping around, consider horizontally out of bound tiles walkable
+    if(nextColumn>=Map_WIDTH/8||nextColumn<0){
+        return TRUE;
+    }
+
+    return get_bkg_tile_xy(nextColumn,nextRow)==blank ||
+        get_bkg_tile_xy(nextColumn,nextRow)==PELLETS_TILES_START||
+        get_bkg_tile_xy(nextColumn,nextRow)==PELLETS_TILES_START+1;
+}
 uint8_t IsTileWalkable(Character *character, uint8_t direction){
         
     int8_t nextColumn=character->column+Directions[direction].x;
@@ -39,9 +52,7 @@ uint8_t IsTileWalkable(Character *character, uint8_t direction){
         return TRUE;
     }
 
-    return get_bkg_tile_xy(nextColumn,nextRow)==blank ||
-        get_bkg_tile_xy(nextColumn,nextRow)==PELLETS_TILES_START||
-        get_bkg_tile_xy(nextColumn,nextRow)==PELLETS_TILES_START+1;
+    return TileSideWalkability[character->column][character->row][direction];
 }
 
 uint8_t IsNextTileWalkable(Character *character){
@@ -93,9 +104,7 @@ void TryChangeDirection(Character *character, uint8_t nextDirection){
 
 uint8_t MoveForward(Character *character, uint8_t speed){
 
-    uint8_t canMoveForward=IsNextTileWalkable(character);
-
-    if((Directions[character->direction].x!=0||Directions[character->direction].y!=0)&&canMoveForward){
+    if(IsNextTileWalkable(character)){
 
         // Move forward some
         character->move+=speed;

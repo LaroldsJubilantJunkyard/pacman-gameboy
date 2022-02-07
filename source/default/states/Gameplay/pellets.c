@@ -74,6 +74,7 @@ void HandleDotConsumption(){
         NR24_REG=0x86;
 
         if(tile==PELLETS_TILES_START+1){
+            frightenedTimer=500;
             for(uint8_t i=0;i<4;i++){
 
                 // BOO!!!!!!

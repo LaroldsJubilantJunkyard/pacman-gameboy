@@ -111,13 +111,24 @@ void SetupGameplay(){
     SetupGhosts();
     
     // We want all the ghosts, the camera, and pacman in position before the upcoming "ready" delay
-    // Otherwise, they'll jump to the correct location after it's
+    // Otherwise, they'll jump to the correct location after it's completed
     UpdateCameraPosition(1);
     DrawGhost(0);
     DrawGhost(1);
     DrawGhost(2);
     DrawGhost(3);
     DrawPacman();
+
+    for(uint8_t i=0;i<21;i++){
+        for(uint8_t j=0;j<27;j++){
+
+            TileSideWalkability[i][j][DOWN]=CheckBackgroundTileIsWalkable(i,j+1);
+            TileSideWalkability[i][j][UP]=CheckBackgroundTileIsWalkable(i,j-1);
+            TileSideWalkability[i][j][RIGHT]=CheckBackgroundTileIsWalkable(i+1,j);
+            TileSideWalkability[i][j][LEFT]=CheckBackgroundTileIsWalkable(i-1,j);
+        }
+    }
+
 
     // Show the ready text (above pacman, below the ghost pit)
     VBK_REG=1; set_bkg_tiles(8,15,6,1,ReadyText_map_attributes);

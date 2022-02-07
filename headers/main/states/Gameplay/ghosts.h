@@ -4,6 +4,7 @@
 #include "util.h"
 
 extern uint8_t ghostsResetting,ghostsReady;
+extern uint16_t frightenedTimer;
 
 
 void GetGhostNextDirection(uint8_t ghostIndex);

@@ -14,6 +14,8 @@ uint8_t level;
 
 uint16_t score=0,highScore=0,pelletsRemaining=0;
 
+uint8_t TileSideWalkability[21][27][4];
+
 // Good ole' pacman
 Character pacman;
 

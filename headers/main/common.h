@@ -14,6 +14,7 @@ extern Character ghosts[4];
 extern Character pacman;
 extern const Vector2D Directions[];
 extern const uint8_t reverseDirections[4];
+extern uint8_t TileSideWalkability[21][27][4];
 
 #define PELLETS_TILES_START Map_TILE_COUNT
 #define NUMBERS_TILES_START PELLETS_TILES_START+Pellets_TILE_COUNT

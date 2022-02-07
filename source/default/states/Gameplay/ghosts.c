@@ -15,9 +15,10 @@
 
 uint8_t ghostsReady=0;
 uint8_t ghostsResetting=0;
-uint16_t scatterChaseCounter;
+uint16_t scatterChaseCounter,frightenedTimer;
 uint8_t scatterOrChaseMode=CHASE;
-uint8_t frigtenedCounter,frigtenedOffset;
+uint8_t frigtenedTwoFrameAnimator,frigtenedOffset;
+
 
 // Where each ghost starts, and where they scatter to
 const Vector2D GhostsStartPositions[]={ {9,12}, {10,10},  {10,12}, {11,12}};
@@ -172,9 +173,9 @@ void GetGhostTargetTile(uint8_t ghostIndex){
 
                     squareDistance = getSquareDistance(pacman.column,pacman.row,ghosts[ghostIndex].column,ghosts[ghostIndex].row);
 
-                    // if we are 8 tiles away or more
+                    // if we are 8 tiles away or less
                     // 8*8 is 64
-                    if(squareDistance>64){
+                    if(squareDistance<64){
 
                         // go toward the scatter target
                         ghosts[ghostIndex].targetColumn=GhostsScatterTargets[ghostIndex].x;
@@ -224,12 +225,17 @@ void GetGhostTargetTile(uint8_t ghostIndex){
 }
 
 void SetupGhosts(){
+    
+    // For each of the 4 ghosts
     for(uint8_t i=0;i<4;i++){
+
+        // Reset their positions and movement
         ghosts[i].state=SCATTERCHASE;
         ghosts[i].move=0;
         ghosts[i].direction=DOWN;
         ghosts[i].column=GhostsStartPositions[i].x;
         ghosts[i].row=GhostsStartPositions[i].y;
+
         // Decide our next target tile and direction
         GetGhostTargetTile(i);
         GetGhostNextDirection(i);
@@ -237,13 +243,16 @@ void SetupGhosts(){
         // Draw the ghot initially
         DrawGhost(i);
     }
-    frigtenedCounter=0;
+    frigtenedTwoFrameAnimator=0;
     frigtenedOffset=0;
     ghostsResetting=0;
+    frightenedTimer=0;
 }
 
 void UpdateSingleGhost(uint8_t i){
 
+    // If we are not at our start position
+    // The ghosts aren't ready
     if(ghosts[i].column!=GhostsStartPositions[i].x||ghosts[i].row!=GhostsStartPositions[i].y){
         ghostsReady=0;
     }
@@ -291,6 +300,7 @@ void UpdateSingleGhost(uint8_t i){
     // Move faster when eaten
     if(ghosts[i].state==EATEN)speed=40;
 
+    // If the ghosts are resetting
     if(ghostsResetting){
 
         // If we are at our target location
@@ -317,27 +327,27 @@ void UpdateSingleGhost(uint8_t i){
 }
 void DrawGhost(uint8_t i){
 
-    uint8_t baseTile=GHOSTS_SPRITES_START;
-    metasprite_t const *ghostCurrentMetasprite = Ghosts_metasprites[ghosts[i].direction*2+twoFrameAnimator+i*8];
-    
-    if(ghosts[i].state==FRIGHTENED){
+    switch(ghosts[i].state){
+        case FRIGHTENED:
 
-        baseTile=GHOSTS_SCARED_SPRITES_START;
-        ghostCurrentMetasprite=GhostsScared_metasprites[frigtenedOffset*2+twoFrameAnimator];
-        
-    }else if(ghosts[i].state==EATEN){
+            DrawCharacter(&ghosts[i],GhostsScared_metasprites[frigtenedOffset*2+twoFrameAnimator],2+i*2,GHOSTS_SCARED_SPRITES_START);
+            break;
 
-        baseTile=GHOSTS_EATEN_SPRITES_START;
-        ghostCurrentMetasprite=GhostsScared_metasprites[ghosts[i].direction];
+        case EATEN:
+
+            DrawCharacter(&ghosts[i],GhostsScared_metasprites[ghosts[i].direction],2+i*2,GHOSTS_EATEN_SPRITES_START);
+            break;
+
+        default:
+
+            DrawCharacter(&ghosts[i],Ghosts_metasprites[ghosts[i].direction*2+twoFrameAnimator+i*8],2+i*2,GHOSTS_SPRITES_START);
+            break;
     }
-
-    
-    DrawCharacter(&ghosts[i],ghostCurrentMetasprite,2+i*2,baseTile);
 
     if(enableDebug){
 
-        uint8_t screenX = ghosts[i].targetColumn*8-SCX_REG;
-        uint8_t screenY = ghosts[i].targetRow*8-SCY_REG;
+        int16_t screenX = ghosts[i].targetColumn*8-SCX_REG;
+        int16_t screenY = ghosts[i].targetRow*8-SCY_REG;
 
         move_metasprite(TargetTiles_metasprites[i],TARGET_TILES_SPRITES_START,36+i,12+screenX,24+screenY);
         
@@ -389,9 +399,18 @@ void UpdateScatterOrChaseMode(){
 
 void UpdateAllGhosts(){
 
-    frigtenedCounter++;
-    if(frigtenedCounter>=20){
-        frigtenedCounter=0;
+    if(frightenedTimer>0){
+        frightenedTimer--;
+        if(frightenedTimer==0){
+            for(uint8_t i=0;i<4;i++){
+                if(ghosts[i].state==FRIGHTENED)ghosts[i].state=SCATTERCHASE;
+            }
+        }
+    }
+
+    frigtenedTwoFrameAnimator++;
+    if(frigtenedTwoFrameAnimator>=20){
+        frigtenedTwoFrameAnimator=0;
         if(frigtenedOffset==0)frigtenedOffset=1;
         else frigtenedOffset=0;
     }
@@ -402,10 +421,7 @@ void UpdateAllGhosts(){
 
     // For each of the 4 ghosts
     for(uint8_t i=0;i<4;i++){
-
-
         UpdateSingleGhost(i);
         DrawGhost(i);
-
     }
 }

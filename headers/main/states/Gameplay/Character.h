@@ -18,6 +18,8 @@ typedef struct Character{
 
 extern uint8_t sidesCanCheck[4], maxPossibleSides;
 
+
+uint8_t CheckBackgroundTileIsWalkable(int8_t nextColumn, int8_t nextRow);
 uint8_t IsTileWalkable(Character *character, uint8_t direction);
 uint8_t MoveForward(Character *character, uint8_t speed);
 void TryChangeDirection(Character *character, uint8_t nextDirection);
