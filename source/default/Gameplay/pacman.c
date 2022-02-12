@@ -1,12 +1,12 @@
 #include <gb/gb.h>
 #include <gb/metasprites.h>
 #include "util.h"
-#include "states/Gameplay/Character.h"
-#include "states/Gameplay/pacman.h"
+#include "Gameplay/Character.h"
+#include "Gameplay/pacman.h"
 #include "common.h"
 #include "graphics/Pacman.h"
 #include "graphics/Map.h"
-#include "graphics/Pellets.h"
+#include "graphics/Dots.h"
 #include "graphics/PacmanEatenLeft.h"
 #include "graphics/PacmanEatenRight.h"
 #include "graphics/PacmanEatenUp.h"
@@ -58,6 +58,8 @@ void UpdatePacman(){
 
 void DrawPacman(){
     
+    // Draw our pacman metasprite
+    // We have this in a function so we can make sure pacman is properly drawn from wherever
     DrawCharacter(&pacman,Pacman_metasprites[pacman.direction*3+threeFrameAnimator],0,0);
 }
 
@@ -70,7 +72,8 @@ void PacmanDeathAnimation_Halting(){
     NR13_REG=0xA6;
     NR14_REG=0x86;
 
-    // Use the tile data from the propre direction
+    // We have an eaten animation for each direction
+    // Use the tile data from the proprer direction
     switch(pacman.direction){
         case DOWN: set_sprite_data(0,PacmanEatenDown_TILE_COUNT,PacmanEatenDown_tiles); break;
         case UP: set_sprite_data(0,PacmanEatenUp_TILE_COUNT,PacmanEatenUp_tiles); break;
@@ -79,9 +82,6 @@ void PacmanDeathAnimation_Halting(){
     }
 
 
-    uint16_t screenX=(pacman.column*8+Directions[pacman.direction].x*(pacman.move>>4))-SCX_REG;
-    uint16_t screenY=(pacman.row*8+Directions[pacman.direction].y*(pacman.move>>4))-SCY_REG;
-
     // Since some othe metasprites only use one sprites
     // Hide these by default, so they don't accidentally show when unused by the metasprite
     move_sprite(0,0,0);
@@ -89,12 +89,12 @@ void PacmanDeathAnimation_Halting(){
 
     for(uint8_t i=0;i<8;i++){        
 
-        // Use the tile data from the propre direction
+        // Draw the proper metasprites depending on which direction we are facing
         switch(pacman.direction){
-            case DOWN: move_metasprite(PacmanEatenDown_metasprites[i],0,0,screenX+12,screenY+20); break;
-            case UP: move_metasprite(PacmanEatenUp_metasprites[i],0,0,screenX+12,screenY+20); break;
-            case LEFT: move_metasprite(PacmanEatenLeft_metasprites[i],0,0,screenX+12,screenY+20); break;
-            case RIGHT: move_metasprite(PacmanEatenRight_metasprites[i],0,0,screenX+12,screenY+20); break;
+            case DOWN: DrawCharacter(&pacman,PacmanEatenDown_metasprites[i],0,0); break;
+            case UP: DrawCharacter(&pacman,PacmanEatenUp_metasprites[i],0,0); break;
+            case LEFT: DrawCharacter(&pacman,PacmanEatenLeft_metasprites[i],0,0); break;
+            case RIGHT: DrawCharacter(&pacman,PacmanEatenRight_metasprites[i],0,0); break;
         }        
 
         wait_vbl_done();

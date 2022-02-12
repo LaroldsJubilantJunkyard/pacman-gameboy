@@ -20,8 +20,9 @@ SET PNG2ASSET=C:/gbdk/bin/png2asset
 %PNG2ASSET% graphics\TargetTiles.png -c source\gen\default\graphics\TargetTiles.c -sw 8 -sh 16 -spr8x16 -keep_palette_order -noflip
 
 
+%PNG2ASSET% graphics\BlackSquare.png -c source\gen\default\graphics\BlackSquare.c -map -use_map_attributes -noflip  -keep_palette_order
 %PNG2ASSET% graphics\Map.png -c source\gen\default\graphics\Map.c -map -use_map_attributes -noflip  -keep_palette_order
-%PNG2ASSET% graphics\Pellets.png -c source\gen\default\graphics\Pellets.c -map -use_map_attributes -noflip  -keep_palette_order
+%PNG2ASSET% graphics\Dots.png -c source\gen\default\graphics\Dots.c -map -use_map_attributes -noflip  -keep_palette_order
 %PNG2ASSET% graphics\Numbers.png -c source\gen\default\graphics\Numbers.c -map -use_map_attributes -noflip -keep_palette_order
 %PNG2ASSET% graphics\OneUpText.png -c source\gen\default\graphics\OneUpText.c -map -use_map_attributes -noflip -keep_palette_order
 %PNG2ASSET% graphics\ReadyText.png -c source\gen\default\graphics\ReadyText.c -map -use_map_attributes -noflip -keep_palette_order

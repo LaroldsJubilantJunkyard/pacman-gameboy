@@ -1,10 +1,10 @@
 #include <gb/gb.h>
 #include <gb/metasprites.h>
 #include "common.h"
-#include "states/Gameplay/Character.h"
+#include "Gameplay/Character.h"
 #include "util.h"
 #include "graphics/Map.h"
-#include "graphics/Pellets.h"
+#include "graphics/Dots.h"
 
 
 
@@ -15,15 +15,22 @@ void GetSidesCanCheck(Character *character,uint8_t allowReverse){
 
     for (uint8_t i = 0; i < 4; i++)
     {
+        // Are we NOT reversing? OR can we reverse?
         uint8_t notReversingOrIsAllowed=(character->direction!=reverseDirections[i]||allowReverse);
+
+        // If this tile is walkable, increase how many and save what direction it is
         if(IsTileWalkable(character,i)&&notReversingOrIsAllowed) sidesCanCheck[maxPossibleSides++]=i;
     }
 }
 
 uint8_t IsAligned(Character *character){
     
-    // Give some extra space for user-friendliness
-    return (character->move>>4)==0||(character->move>>4)>=8;
+    // This could be adjusted to make things more user-friendly
+    // but, some 'snapping' may occur
+    // The move variable's value is shifted to the left 4 bits for higher-precision
+    // 128 = 8<<4
+    // We're checking if the player has moved more than 8 pixels
+    return character->move==0||character->move>=128;
 }
 
 uint8_t CheckBackgroundTileIsWalkable(int8_t nextColumn, int8_t nextRow){
@@ -35,10 +42,12 @@ uint8_t CheckBackgroundTileIsWalkable(int8_t nextColumn, int8_t nextRow){
         return TRUE;
     }
 
+    // If this tile is blank, or one of the dots, it is walkabble
     return get_bkg_tile_xy(nextColumn,nextRow)==blank ||
-        get_bkg_tile_xy(nextColumn,nextRow)==PELLETS_TILES_START||
-        get_bkg_tile_xy(nextColumn,nextRow)==PELLETS_TILES_START+1;
+        get_bkg_tile_xy(nextColumn,nextRow)==DOTS_TILES_START||
+        get_bkg_tile_xy(nextColumn,nextRow)==DOTS_TILES_START+1;
 }
+
 uint8_t IsTileWalkable(Character *character, uint8_t direction){
         
     int8_t nextColumn=character->column+Directions[direction].x;
@@ -96,7 +105,7 @@ void TryChangeDirection(Character *character, uint8_t nextDirection){
             character->direction=nextDirection;
 
             // Use the inverse value for move
-            character->move=((8-(character->move>>4))<<4);
+            character->move=(128-character->move);
 
         }
     }
@@ -110,7 +119,10 @@ uint8_t MoveForward(Character *character, uint8_t speed){
         character->move+=speed;
 
         // If this character has moved one tile away
-        if((character->move>>4)>=8){
+        // The move variable's value is shifted to the left 4 bits for higher-precision
+        // 128 = 8<<4
+        // We're checking if the player has moved more than 8 pixels
+        if(character->move>=128){
 
             // Reset our move
             character->move=0;
@@ -138,6 +150,7 @@ uint8_t MoveForward(Character *character, uint8_t speed){
 void DrawCharacter(Character *character, metasprite_t const *metasprites, uint8_t baseSprite, uint8_t baseTile){
 
     // Get our screenX and screenY
+    // Take our world position and subtract the camera's position to get our screen position
     uint16_t screenX=(character->column*8+Directions[character->direction].x*(character->move>>4))-SCX_REG;
     uint16_t screenY=(character->row*8+Directions[character->direction].y*(character->move>>4))-SCY_REG;
 
@@ -146,7 +159,5 @@ void DrawCharacter(Character *character, metasprite_t const *metasprites, uint8_
     // So a sprite draw at 0,0 will not be shown
     // To draw a sprite at 0,0, it's x,y should be 8,16
     // We use +4 and +12 so the 8x8 sprite is centered at the x,y position
-   // move_sprite(0,screenX+4,screenY+12);
-    //move_sprite(1,screenX+12,screenY+12);
     move_metasprite(metasprites,baseTile,baseSprite,screenX+12,screenY+20);
 }

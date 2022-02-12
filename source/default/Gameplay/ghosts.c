@@ -1,15 +1,15 @@
 #include <gb/gb.h>
 #include <gb/metasprites.h>
 #include "util.h"
-#include "states/Gameplay/ghosts.h"
-#include "states/Gameplay/Pacman.h"
-#include "states/Gameplay/Character.h"
+#include "Gameplay/ghosts.h"
+#include "Gameplay/Pacman.h"
+#include "Gameplay/Character.h"
 #include "graphics/Pacman.h"
 #include "graphics/Ghosts.h"
 #include "graphics/GhostsScared.h"
 #include "graphics/GhostsEaten.h"
 #include "graphics/Map.h"
-#include "graphics/Pellets.h"
+#include "graphics/Dots.h"
 #include "graphics/TargetTiles.h"
 #include "cOMMON.h"
 
@@ -328,20 +328,9 @@ void UpdateSingleGhost(uint8_t i){
 void DrawGhost(uint8_t i){
 
     switch(ghosts[i].state){
-        case FRIGHTENED:
-
-            DrawCharacter(&ghosts[i],GhostsScared_metasprites[frigtenedOffset*2+twoFrameAnimator],2+i*2,GHOSTS_SCARED_SPRITES_START);
-            break;
-
-        case EATEN:
-
-            DrawCharacter(&ghosts[i],GhostsScared_metasprites[ghosts[i].direction],2+i*2,GHOSTS_EATEN_SPRITES_START);
-            break;
-
-        default:
-
-            DrawCharacter(&ghosts[i],Ghosts_metasprites[ghosts[i].direction*2+twoFrameAnimator+i*8],2+i*2,GHOSTS_SPRITES_START);
-            break;
+        case FRIGHTENED: DrawCharacter(&ghosts[i],GhostsScared_metasprites[frigtenedOffset*2+twoFrameAnimator],2+i*2,GHOSTS_SCARED_SPRITES_START); break;
+        case EATEN: DrawCharacter(&ghosts[i],GhostsScared_metasprites[ghosts[i].direction],2+i*2,GHOSTS_EATEN_SPRITES_START); break;
+        default: DrawCharacter(&ghosts[i],Ghosts_metasprites[ghosts[i].direction*2+twoFrameAnimator+i*8],2+i*2,GHOSTS_SPRITES_START); break;
     }
 
     if(enableDebug){
@@ -399,10 +388,18 @@ void UpdateScatterOrChaseMode(){
 
 void UpdateAllGhosts(){
 
+    // While our frighted timer is larger than 0
+    // Are ghosts are still frightened
     if(frightenedTimer>0){
         frightenedTimer--;
+
+        // When it reaches zero
+        // We want to change all ghosts back to scatterchase mode
         if(frightenedTimer==0){
             for(uint8_t i=0;i<4;i++){
+
+                // If this ghosts is frightened still (because they could have been eaten)
+                // Change by to scatter-chase mode
                 if(ghosts[i].state==FRIGHTENED)ghosts[i].state=SCATTERCHASE;
             }
         }
@@ -417,10 +414,14 @@ void UpdateAllGhosts(){
 
     UpdateScatterOrChaseMode();
 
+    // By default, all ghosts are ready
+    // Each ghost will unset this to 0 if they are not ready.
     ghostsReady=1;
 
     // For each of the 4 ghosts
     for(uint8_t i=0;i<4;i++){
+
+        // Update and Draw
         UpdateSingleGhost(i);
         DrawGhost(i);
     }

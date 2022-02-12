@@ -1,8 +1,8 @@
 #include <gb/gb.h>
-#include "states/Gameplay/Character.h"
+#include "Gameplay/Character.h"
 #include "util.h"
 
-// Used for animating pacman (3 frames), the ghosts (2 frames), blinking the big pellets, and blinking the 1 up text
+// Used for animating pacman (3 frames), the ghosts (2 frames), blinking the big dots, and blinking the 1 up text
 uint8_t twoFrameAnimator=0;
 uint8_t threeFrameAnimator=0;
 
@@ -12,7 +12,7 @@ uint8_t threeFrameAnimator=0;
 uint8_t joypadCurrent,joypadPrevious;
 uint8_t level;
 
-uint16_t score=0,highScore=0,pelletsRemaining=0;
+uint16_t score=0,highScore=0,dotsRemaining=0;
 
 uint8_t TileSideWalkability[21][27][4];
 
