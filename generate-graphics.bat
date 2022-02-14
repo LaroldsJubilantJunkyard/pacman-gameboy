@@ -7,7 +7,7 @@ mkdir "headers\gen\graphics"
 
 
 SET GBDK_HOME=C:/gbdk
-SET PNG2ASSET=C:/gbdk/bin/png2asset
+SET PNG2ASSET=%GBDK_HOME%/bin/png2asset
 
 %PNG2ASSET% graphics\Pacman.png -c source\gen\default\graphics\Pacman.c -sw 16 -sh 16 -spr8x16 -keep_palette_order -noflip
 %PNG2ASSET% graphics\PacmanEatenDown.png -c source\gen\default\graphics\PacmanEatenDown.c -sw 16 -sh 16 -spr8x16 -keep_palette_order -noflip
@@ -28,11 +28,6 @@ SET PNG2ASSET=C:/gbdk/bin/png2asset
 %PNG2ASSET% graphics\ReadyText.png -c source\gen\default\graphics\ReadyText.c -map -use_map_attributes -noflip -keep_palette_order
 %PNG2ASSET% graphics\HighText.png -c source\gen\default\graphics\HighText.c -map -use_map_attributes -noflip -keep_palette_order
 
-
-:: move .h files to their proper location
-FOR /R "source/gen/bank1/graphics/" %%X IN (*.h) DO (
-    move "%%X" "%cd%/headers/gen/graphics/"
-)
 
 :: move .h files to their proper location
 FOR /R "source/gen/default/graphics/" %%X IN (*.h) DO (
