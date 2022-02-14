@@ -21,6 +21,9 @@ void UpdateScore(){
 
 void SetupHUD(){
 
+    // Move the window to the right side
+    move_win(120,0);  
+
     // Fill the window with blank tiles
     VBK_REG=1; fill_win_rect(0,0,20,18,0x80|3);
     VBK_REG=0; fill_win_rect(0,0,20,18,BLACKSQUARE_TILES_START);

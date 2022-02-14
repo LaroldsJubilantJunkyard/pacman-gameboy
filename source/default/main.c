@@ -74,8 +74,6 @@ void SetupGameplay(){
     SHOW_BKG;
     SHOW_WIN;
 
-    score=0;
-
     // Move the window to the right side
     move_win(120,0);    
 
@@ -106,6 +104,8 @@ void SetupGameplay(){
 
     // Get the tile we'll use at the blank tile 
     blank=get_bkg_tile_xy(10,13);
+
+    score=0;
 
     SetupHUD();
     UpdateScore();
