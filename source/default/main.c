@@ -72,10 +72,7 @@ void SetupGameplay(){
     SHOW_SPRITES;
     SPRITES_8x16;
     SHOW_BKG;
-    SHOW_WIN;
-
-    // Move the window to the right side
-    move_win(120,0);    
+    SHOW_WIN;  
 
     // Use the palettes from these two graphics
     // For simplicity, all sprite PNGs use the same palette set
