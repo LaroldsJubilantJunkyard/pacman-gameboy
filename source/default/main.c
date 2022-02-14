@@ -57,22 +57,8 @@ void UpdateCameraPosition(uint8_t dividor){
     SCX_REG+=cameraXDiff/dividor;
     SCY_REG+=cameraYDiff/dividor;
 }
-
-
-
-void SetupGameplay(){
-
-    // This enables Sound
-    // these registers must be in this specific order!
-    NR52_REG = 0x80; // is 1000 0000 in binary and turns on sound
-    NR50_REG = 0x77; // sets the volume for both left and right channel just set to max 0x77
-    NR51_REG = 0xFF; // is 1111 1111 in binary, select which chanels we want to use in this case all of them. One bit for the L one bit for the R of all four channels
-
-    DISPLAY_ON;
-    SHOW_SPRITES;
-    SPRITES_8x16;
-    SHOW_BKG;
-    SHOW_WIN;  
+void SetupVRAM(){
+    
 
     // Use the palettes from these two graphics
     // For simplicity, all sprite PNGs use the same palette set
@@ -101,34 +87,9 @@ void SetupGameplay(){
 
     // Get the tile we'll use at the blank tile 
     blank=get_bkg_tile_xy(10,13);
+}
 
-    score=0;
-
-    SetupHUD();
-    UpdateScore();
-    SetupDots();
-    SetupPacman();    
-    SetupGhosts();
-    
-    // We want all the ghosts, the camera, and pacman in position before the upcoming "ready" delay
-    // Otherwise, they'll jump to the correct location after it's completed
-    UpdateCameraPosition(1);
-    DrawGhost(0);
-    DrawGhost(1);
-    DrawGhost(2);
-    DrawGhost(3);
-    DrawPacman();
-
-    for(uint8_t i=0;i<21;i++){
-        for(uint8_t j=0;j<27;j++){
-
-            TileSideWalkability[i][j][DOWN]=CheckBackgroundTileIsWalkable(i,j+1);
-            TileSideWalkability[i][j][UP]=CheckBackgroundTileIsWalkable(i,j-1);
-            TileSideWalkability[i][j][RIGHT]=CheckBackgroundTileIsWalkable(i+1,j);
-            TileSideWalkability[i][j][LEFT]=CheckBackgroundTileIsWalkable(i-1,j);
-        }
-    }
-
+void StartGameplay(){
 
     // Show the ready text (above pacman, below the ghost pit)
     VBK_REG=1; set_bkg_tiles(8,15,6,1,ReadyText_map_attributes);
@@ -153,6 +114,50 @@ void SetupGameplay(){
 
     twoFrameAnimator=0;
     threeFrameAnimator=0;
+}
+
+void SetupGameplay(){
+
+    // This enables Sound
+    // these registers must be in this specific order!
+    NR52_REG = 0x80; // is 1000 0000 in binary and turns on sound
+    NR50_REG = 0x77; // sets the volume for both left and right channel just set to max 0x77
+    NR51_REG = 0xFF; // is 1111 1111 in binary, select which chanels we want to use in this case all of them. One bit for the L one bit for the R of all four channels
+
+    DISPLAY_ON;
+    SHOW_SPRITES;
+    SPRITES_8x16;
+    SHOW_BKG;
+    SHOW_WIN;  
+
+    score=0;
+
+    SetupVRAM();
+    SetupHUD();
+    SetupDots();
+    SetupPacman();    
+    SetupGhosts();
+    
+    // We want all the ghosts, the camera, and pacman in position before the upcoming "ready" delay
+    // Otherwise, they'll jump to the correct location after it's completed
+    UpdateScore();
+    UpdateCameraPosition(1);
+    DrawGhost(0);
+    DrawGhost(1);
+    DrawGhost(2);
+    DrawGhost(3);
+    DrawPacman();
+
+    for(uint8_t i=0;i<21;i++){
+        for(uint8_t j=0;j<27;j++){
+
+            TileSideWalkability[i][j][DOWN]=CheckBackgroundTileIsWalkable(i,j+1);
+            TileSideWalkability[i][j][UP]=CheckBackgroundTileIsWalkable(i,j-1);
+            TileSideWalkability[i][j][RIGHT]=CheckBackgroundTileIsWalkable(i+1,j);
+            TileSideWalkability[i][j][LEFT]=CheckBackgroundTileIsWalkable(i-1,j);
+        }
+    }
+    
 
 }
 
@@ -196,6 +201,7 @@ void BlinkLevelBlueAndWhite_Halting(){
 void main(){
 
     SetupGameplay();
+    StartGameplay();
 
 
     while(TRUE){
@@ -228,7 +234,10 @@ void main(){
 
 
             // Setup gamelay
-            if(ghostsReady)SetupGameplay();
+            if(ghostsReady){
+                SetupGameplay();
+                StartGameplay();
+            }
         }
 
         // If there are no more balls remaining
@@ -238,6 +247,7 @@ void main(){
         else if(dotsRemaining==0){
             BlinkLevelBlueAndWhite_Halting();
             SetupGameplay();
+            StartGameplay();
         }
 
         wait_vbl_done();
