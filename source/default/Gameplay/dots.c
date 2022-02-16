@@ -35,6 +35,14 @@ void SetupDots(){
     BigDotsActive[2]=1;
     BigDotsActive[3]=1;
 
+    // For each big pellet
+    for(uint8_t i=0;i<4;i++){
+            
+        // Draw the pellet
+        VBK_REG=1; set_bkg_tile_xy(BigPelletPositions[i].x,BigPelletPositions[i].y,0);
+        VBK_REG=0; set_bkg_tile_xy(BigPelletPositions[i].x,BigPelletPositions[i].y,DOTS_TILES_START+1);
+    }
+
     for(uint8_t i=0;i<21;i++){
         for(uint8_t j=0;j<27;j++){
 
@@ -68,36 +76,6 @@ void SetupDots(){
 }
 
 
-void ShowOrHideActiveBigDots(uint8_t show){
-
-    // For each big pellet
-    for(uint8_t i=0;i<4;i++){
-
-        
-        if(show){
-
-            // If it is active
-            if(BigDotsActive[i]){
-            
-                // Draw the pellet
-                VBK_REG=1; set_bkg_tile_xy(BigPelletPositions[i].x,BigPelletPositions[i].y,0);
-                VBK_REG=0; set_bkg_tile_xy(BigPelletPositions[i].x,BigPelletPositions[i].y,DOTS_TILES_START+1);
-            }
-
-        }else{
-            
-
-            // If it is active
-            if(BigDotsActive[i]){
-            
-                // Draw the pellet
-                VBK_REG=1; set_bkg_tile_xy(BigPelletPositions[i].x,BigPelletPositions[i].y,0);
-                VBK_REG=0; set_bkg_tile_xy(BigPelletPositions[i].x,BigPelletPositions[i].y,DOTS_TILES_START+1);
-            }
-        }
-    }
-}
-
 void HandleDotConsumption(){
     
     // Get the tile pacman is on
@@ -105,11 +83,14 @@ void HandleDotConsumption(){
 
     // Every cycle of the two frame animator 
     // We'll hide/show the big dots
-    if(twoFrameAnimator==0){
+    if(threeFrameAnimator==0){
 
         dotsShown=!dotsShown;
-     
-        ShowOrHideActiveBigDots(dotsShown);
+
+        // Switch the tile in VRAM between the 2nd and third tile in the Dots graphic
+        // The third tile is blank, the second is the power pellet
+        if(dotsShown)set_bkg_data(DOTS_TILES_START+1,1,Dots_tiles+16);
+        else set_bkg_data(DOTS_TILES_START+1,1,Dots_tiles+32);
     }
 
     // If this is a big or small pellet
