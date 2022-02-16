@@ -116,6 +116,23 @@ void StartGameplay(){
     threeFrameAnimator=0;
 }
 
+
+uint8_t CheckBackgroundTileIsWalkable(int8_t nextColumn, int8_t nextRow){
+
+    if(nextColumn==10&&nextRow==11)return TRUE;
+
+    // To allow looping around, consider horizontally out of bound tiles walkable
+    if(nextColumn>=Map_WIDTH/8||nextColumn<0){
+        return TRUE;
+    }
+
+    // If this tile is blank, or one of the dots, it is walkabble
+    return get_bkg_tile_xy(nextColumn,nextRow)==blank ||
+        get_bkg_tile_xy(nextColumn,nextRow)==DOTS_TILES_START||
+        get_bkg_tile_xy(nextColumn,nextRow)==DOTS_TILES_START+1;
+}
+
+
 void SetupGameplay(){
 
     // This enables Sound

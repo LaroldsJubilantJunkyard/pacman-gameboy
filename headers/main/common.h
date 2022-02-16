@@ -39,6 +39,6 @@ extern uint8_t TileSideWalkability[21][27][4];
 #define CLYDE 3 // orange
 
 
-void GetSidesCanCheck(Character *character,uint8_t allowReverse);
+void GetDirectionsCharacterCanMoveIn(Character *character,uint8_t allowReverse);
 
 #endif

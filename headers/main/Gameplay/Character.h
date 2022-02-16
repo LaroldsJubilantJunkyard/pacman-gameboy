@@ -16,13 +16,12 @@ typedef struct Character{
     int16_t targetColumn,targetRow;
 } Character;
 
-extern uint8_t sidesCanCheck[4], maxPossibleSides;
+extern uint8_t directionsCharacterCanMoveIn[4], numberOfDirectionsCharacterCanMoveIn;
 
 
-uint8_t CheckBackgroundTileIsWalkable(int8_t nextColumn, int8_t nextRow);
-uint8_t IsTileWalkable(Character *character, uint8_t direction);
+uint8_t CanCharacterMoveInThisDirection(Character *character, uint8_t direction);
 uint8_t MoveForward(Character *character, uint8_t speed);
 void TryChangeDirection(Character *character, uint8_t nextDirection);
-void GetSidesCanCheck(Character *character,uint8_t allowReverse);
+void GetDirectionsCharacterCanMoveIn(Character *character,uint8_t allowReverse);
 void DrawCharacter(Character *character, metasprite_t *metasprites, uint8_t baseSprite, uint8_t baseTile);
 #endif

@@ -67,26 +67,26 @@ void GetGhostNextDirection(uint8_t ghostIndex){
 
     // Get which directions we can move in
     // NOTE: WE cannot reverse directions
-    GetSidesCanCheck(&ghosts[ghostIndex],FALSE);
+    GetDirectionsCharacterCanMoveIn(&ghosts[ghostIndex],FALSE);
 
-    if(maxPossibleSides==0)return;
+    if(numberOfDirectionsCharacterCanMoveIn==0)return;
 
     // Get the distance to our target tile FROM the first (possibly best) direction 
     uint16_t bestDistance=getSquareDistance(
-        ghosts[ghostIndex].column+Directions[sidesCanCheck[0]].x,
-        ghosts[ghostIndex].row+Directions[sidesCanCheck[0]].y,
+        ghosts[ghostIndex].column+Directions[directionsCharacterCanMoveIn[0]].x,
+        ghosts[ghostIndex].row+Directions[directionsCharacterCanMoveIn[0]].y,
         ghosts[ghostIndex].targetColumn,
         ghosts[ghostIndex].targetRow
     );
 
-    uint16_t bestDirection=sidesCanCheck[0];
+    uint16_t bestDirection=directionsCharacterCanMoveIn[0];
 
     // Check each other possibble side
     // NOTE: This loop starts at 1, because we default at 0
-    for(uint8_t i=1;i<maxPossibleSides;i++){
+    for(uint8_t i=1;i<numberOfDirectionsCharacterCanMoveIn;i++){
 
         // Get the distance to our target tile FROM the tile in our next (possibly best) direction
-        uint8_t nextPossibleNestDirection = sidesCanCheck[i];
+        uint8_t nextPossibleNestDirection = directionsCharacterCanMoveIn[i];
         uint16_t nextPossibleBestDistance = getSquareDistance(
             ghosts[ghostIndex].column+Directions[nextPossibleNestDirection].x,
             ghosts[ghostIndex].row+Directions[nextPossibleNestDirection].y,
@@ -205,12 +205,12 @@ void GetGhostTargetTile(uint8_t ghostIndex){
 
             // Get which directions we can move in
             // Do not pick opposite directions
-            GetSidesCanCheck(&ghosts[ghostIndex],FALSE);
+            GetDirectionsCharacterCanMoveIn(&ghosts[ghostIndex],FALSE);
 
-            random = RandomNumber(0,maxPossibleSides);
+            random = RandomNumber(0,numberOfDirectionsCharacterCanMoveIn);
 
-            ghosts[ghostIndex].targetColumn=ghosts[ghostIndex].column+Directions[sidesCanCheck[random]].x;
-            ghosts[ghostIndex].targetRow=ghosts[ghostIndex].row+Directions[sidesCanCheck[random]].y;
+            ghosts[ghostIndex].targetColumn=ghosts[ghostIndex].column+Directions[directionsCharacterCanMoveIn[random]].x;
+            ghosts[ghostIndex].targetRow=ghosts[ghostIndex].row+Directions[directionsCharacterCanMoveIn[random]].y;
 
 
         break;

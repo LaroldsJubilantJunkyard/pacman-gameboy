@@ -15,7 +15,6 @@
 
 
 void SetupPacman(){
-    
 
     // Make sure pacman's normaltiles are set
     // At the end of gameplay, we change these to a death animation

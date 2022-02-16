@@ -6,12 +6,11 @@
 #include "graphics/Map.h"
 #include "graphics/Dots.h"
 
+uint8_t directionsCharacterCanMoveIn[4] = {0,0,0,0},numberOfDirectionsCharacterCanMoveIn=0;
 
-
-uint8_t sidesCanCheck[4] = {0,0,0,0},maxPossibleSides=0;
-void GetSidesCanCheck(Character *character,uint8_t allowReverse){
+void GetDirectionsCharacterCanMoveIn(Character *character,uint8_t allowReverse){
     
-    maxPossibleSides=0;
+    numberOfDirectionsCharacterCanMoveIn=0;
 
     for (uint8_t i = 0; i < 4; i++)
     {
@@ -19,7 +18,7 @@ void GetSidesCanCheck(Character *character,uint8_t allowReverse){
         uint8_t notReversingOrIsAllowed=(character->direction!=reverseDirections[i]||allowReverse);
 
         // If this tile is walkable, increase how many and save what direction it is
-        if(IsTileWalkable(character,i)&&notReversingOrIsAllowed) sidesCanCheck[maxPossibleSides++]=i;
+        if(CanCharacterMoveInThisDirection(character,i)&&notReversingOrIsAllowed) directionsCharacterCanMoveIn[numberOfDirectionsCharacterCanMoveIn++]=i;
     }
 }
 
@@ -33,22 +32,7 @@ uint8_t IsAligned(Character *character){
     return character->move==0||character->move>=128;
 }
 
-uint8_t CheckBackgroundTileIsWalkable(int8_t nextColumn, int8_t nextRow){
-
-    if(nextColumn==10&&nextRow==11)return TRUE;
-
-    // To allow looping around, consider horizontally out of bound tiles walkable
-    if(nextColumn>=Map_WIDTH/8||nextColumn<0){
-        return TRUE;
-    }
-
-    // If this tile is blank, or one of the dots, it is walkabble
-    return get_bkg_tile_xy(nextColumn,nextRow)==blank ||
-        get_bkg_tile_xy(nextColumn,nextRow)==DOTS_TILES_START||
-        get_bkg_tile_xy(nextColumn,nextRow)==DOTS_TILES_START+1;
-}
-
-uint8_t IsTileWalkable(Character *character, uint8_t direction){
+uint8_t CanCharacterMoveInThisDirection(Character *character, uint8_t direction){
         
     int8_t nextColumn=character->column+Directions[direction].x;
     int8_t nextRow=character->row+Directions[direction].y;
@@ -64,10 +48,6 @@ uint8_t IsTileWalkable(Character *character, uint8_t direction){
     return TileSideWalkability[character->column][character->row][direction];
 }
 
-uint8_t IsNextTileWalkable(Character *character){
-
-    return IsTileWalkable(character,character->direction);
-}
 
 void TryChangeDirection(Character *character, uint8_t nextDirection){
 
@@ -82,7 +62,7 @@ void TryChangeDirection(Character *character, uint8_t nextDirection){
         (character->direction==UP&&(nextDirection==LEFT||nextDirection==RIGHT))||
         (character->direction==DOWN&&(nextDirection==LEFT||nextDirection==RIGHT));
 
-    uint8_t canMoveThisWay=IsTileWalkable(character,nextDirection);
+    uint8_t canMoveThisWay=CanCharacterMoveInThisDirection(character,nextDirection);
 
     // If the tile in this direction is walkable
     if(canMoveThisWay){
@@ -113,7 +93,7 @@ void TryChangeDirection(Character *character, uint8_t nextDirection){
 
 uint8_t MoveForward(Character *character, uint8_t speed){
 
-    if(IsNextTileWalkable(character)){
+    if(CanCharacterMoveInThisDirection(character,character->direction)){
 
         // Move forward some
         character->move+=speed;
