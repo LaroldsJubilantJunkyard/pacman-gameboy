@@ -22,16 +22,6 @@ void GetDirectionsCharacterCanMoveIn(Character *character,uint8_t allowReverse){
     }
 }
 
-uint8_t IsAligned(Character *character){
-    
-    // This could be adjusted to make things more user-friendly
-    // but, some 'snapping' may occur
-    // The move variable's value is shifted to the left 4 bits for higher-precision
-    // 128 = 8<<4
-    // We're checking if the player has moved more than 8 pixels
-    return character->move==0||character->move>=128;
-}
-
 uint8_t CanCharacterMoveInThisDirection(Character *character, uint8_t direction){
         
     int8_t nextColumn=character->column+Directions[direction].x;
@@ -54,7 +44,12 @@ void TryChangeDirection(Character *character, uint8_t nextDirection){
     // If this is the same direction, do nothing
     if(character->direction==nextDirection)return;
 
-    uint8_t aligned = IsAligned(character);
+    // This could be adjusted to make things more user-friendly
+    // but, some 'snapping' may occur
+    // The move variable's value is shifted to the left 4 bits for higher-precision
+    // 128 = 8<<4
+    // We're checking if the player has moved more than 8 pixels
+    uint8_t aligned = character->move==0||character->move>=128;
     
     uint8_t changingAxis=
         (character->direction==LEFT&&(nextDirection==UP||nextDirection==DOWN))||
