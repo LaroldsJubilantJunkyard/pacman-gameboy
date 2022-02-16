@@ -43,8 +43,8 @@ void SetupDots(){
         VBK_REG=0; set_bkg_tile_xy(BigPelletPositions[i].x,BigPelletPositions[i].y,DOTS_TILES_START+1);
     }
 
-    for(uint8_t i=0;i<21;i++){
-        for(uint8_t j=0;j<27;j++){
+    for(uint8_t i=0;i<Map_WIDTH/8;i++){
+        for(uint8_t j=0;j<Map_HEIGHT/8;j++){
 
             // These are areas where we do not want to spawn dots
             uint8_t mid = i>=6&&j>=6&&i<15&&j<=17;
