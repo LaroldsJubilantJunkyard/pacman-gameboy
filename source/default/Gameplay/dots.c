@@ -20,7 +20,6 @@
 
 const Vector2D BigPelletPositions[4]={{1,3},{19,3},{1,20},{19,20}};
 
-uint8_t BigDotsActive[4]={1,1,1,1};
 uint8_t dotsShown=FALSE;
 
 void SetupDots(){
@@ -28,12 +27,6 @@ void SetupDots(){
     // Default at 0
     // The following for-loops will increment
     dotsRemaining=0;
-
-    // All dots set to active
-    BigDotsActive[0]=1;
-    BigDotsActive[1]=1;
-    BigDotsActive[2]=1;
-    BigDotsActive[3]=1;
 
     // For each big pellet
     for(uint8_t i=0;i<4;i++){
@@ -113,13 +106,6 @@ void HandleDotConsumption(){
 
                     // Try to change directions
                     TryChangeDirection(&ghosts[i],reverseDirections[ghosts[i].direction]);
-                }
-            }
-            
-            for(uint8_t i=0;i<4;i++){
-                if(pacman.column==BigPelletPositions[i].x&&pacman.row==BigPelletPositions[i].y){
-                    BigDotsActive[i]=0;
-                    break;
                 }
             }
         }

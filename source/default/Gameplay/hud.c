@@ -41,7 +41,7 @@ void SetupHUD(){
 
 void UpdateHUD(){
 
-    if(twoFrameAnimator==0){
+    if(threeFrameAnimator==0){
 
         // at 2,3 on the window we will draw the one up text
         // or blank, when flashed off
